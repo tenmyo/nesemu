@@ -1,26 +1,32 @@
 cmake_minimum_required(VERSION 3.7)
-include(cmake/CompileOptions.cmake)
-include(cmake/EnableMeasureTime.cmake)
-include(cmake/EnableCcache.cmake)
-include(cmake/DoClangTidy.cmake)
 
-project(nes_emu
-  VERSION 0.1.0
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(CompileOptions)
+include(EnableMeasureTime)
+include(EnableCcache)
+include(DoClangTidy)
+include(FormatFilesWithClangFormat)
+
+set(MY_PROJECT_NAME   "nes_emu")
+set(MY_VERSION_MAJOR  "0")
+set(MY_VERSION_MINOR  "1")
+set(MY_VERSION_PATCH  "0")
+set(MY_VERSION        "${MY_VERSION_MAJOR}.${MY_VERSION_MINOR}.${MY_VERSION_PATCH}")
+
+project(${MY_PROJECT_NAME}
+  VERSION ${MY_VERSION}
   LANGUAGES C CXX
   )
-add_executable(${PROJECT_NAME}
-  source/main.cpp
-  )
 
-target_compile_options(${PROJECT_NAME}
-  PRIVATE
-  ${DEFAULT_COMPILE_OPTIONS}
-  )
-
-include(cmake/FormatFilesWithClangFormat.cmake)
+add_subdirectory(source)
 
 include(CTest)
-enable_testing()
+if(BUILD_TESTING)
+  message(STATUS "Build testing")
+  enable_testing()
+  include(gtest)
+  add_subdirectory(test)
+endif()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
