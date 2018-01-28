@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.7)
 
+# Include misc modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(CompileOptions)
 include(EnableMeasureTime)
@@ -7,24 +8,41 @@ include(EnableCcache)
 include(DoClangTidy)
 include(FormatFilesWithClangFormat)
 
+# Set project info
 set(MY_PROJECT_NAME   "nes_emu")
 set(MY_VERSION_MAJOR  "0")
 set(MY_VERSION_MINOR  "1")
 set(MY_VERSION_PATCH  "0")
 set(MY_VERSION        "${MY_VERSION_MAJOR}.${MY_VERSION_MINOR}.${MY_VERSION_PATCH}")
-
 project(${MY_PROJECT_NAME}
   VERSION ${MY_VERSION}
   LANGUAGES C CXX
-  )
+)
 
-add_subdirectory(source)
+# Set output path
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
+# Build library
+file(GLOB_RECURSE SRCS "source/*.cpp")
+add_library(${PROJECT_NAME} SHARED ${SRCS})
+target_compile_options(${PROJECT_NAME}
+  PRIVATE
+  ${DEFAULT_COMPILE_OPTIONS}
+)
+clang_format(${PROJECT_NAME})
+clang_tidy(${PROJECT_NAME})
+
+# Build executable
+add_executable(${PROJECT_NAME}-exe main.cpp)
+target_link_libraries(${PROJECT_NAME}-exe ${PROJECT_NAME})
+set_target_properties(${PROJECT_NAME}-exe PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+
+# Build tests if option enabled
 include(CTest)
 if(BUILD_TESTING)
   message(STATUS "Build testing")
   enable_testing()
-  include(gtest)
   add_subdirectory(test)
 endif()
 

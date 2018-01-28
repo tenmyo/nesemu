@@ -1,11 +1,9 @@
+
+find_package(GTest REQUIRED)
+
 set(target nes_emu_test)
 
-include_directories("${gtest_SOURCE_DIR}/include")
-add_executable(${target}
-  test.cpp
-)
-
-# disable warnings
+# Disable warnings
 set(disable_warnings)
 if(CMAKE_C_COMPILER_ID MATCHES "Clang")
   set(disable_warnings
@@ -16,17 +14,15 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "GNU")
 elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
 endif()
 
+# Build
+file(GLOB_RECURSE SRCS "*.cpp")
+add_executable(${target} ${SRCS})
 target_compile_options(${target}
   PRIVATE
   ${DEFAULT_COMPILE_OPTIONS}
   ${disable_warnings}
 )
-target_link_libraries(${target} gtest_main)
-add_test(NAME ${target} COMMAND "$<TARGET_FILE:${target}>")
-
-get_target_property(srcs ${target} SOURCES)
-foreach(src ${srcs})
-  set_property(TEST ${target} APPEND PROPERTY LABELS ${src})
-endforeach()
+target_link_libraries(${target} GTest::Main ${PROJECT_NAME})
+GTEST_ADD_TESTS(${target} "" AUTO)
 
 clang_format(${target})
