@@ -1,6 +1,7 @@
+cmake_minimum_required(VERSION 3.8)
 enable_language(CXX)
 enable_language(C)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17) # need cmake >3.8
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_C_STANDARD 99)
@@ -12,6 +13,8 @@ if(CMAKE_C_COMPILER_ID MATCHES "Clang")
   set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
     -Wall
     -Weverything
+    -Wno-c++98-compat
+    -Wno-c++98-compat-pedantic
     )
 elseif(CMAKE_C_COMPILER_ID MATCHES "GNU")
   set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}

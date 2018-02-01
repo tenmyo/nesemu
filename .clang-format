@@ -1,4 +1,11 @@
 ---
 Language:        Cpp
 BasedOnStyle:    LLVM
+IncludeCategories:
+  - Regex:           '^"(nes_emu)/'
+    Priority:        2
+  - Regex:           '^(<|"(gtest|gmock)/)'
+    Priority:        3
+  - Regex:           '.*'
+    Priority:        1
 ...

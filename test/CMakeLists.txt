@@ -15,13 +15,14 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
 endif()
 
 # Build
-file(GLOB_RECURSE SRCS "*.cpp")
+file(GLOB_RECURSE SRCS "*.cpp" "*.h")
 add_executable(${target} ${SRCS})
 target_compile_options(${target}
   PRIVATE
   ${DEFAULT_COMPILE_OPTIONS}
   ${disable_warnings}
 )
+target_include_directories(${target} PRIVATE "${PROJECT_SOURCE_DIR}/include")
 target_link_libraries(${target} GTest::Main ${PROJECT_NAME})
 GTEST_ADD_TESTS(${target} "" AUTO)
 

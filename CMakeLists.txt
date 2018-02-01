@@ -24,13 +24,14 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 # Build library
-file(GLOB_RECURSE SRCS "source/*.cpp")
+file(GLOB_RECURSE SRCS "source/*.cpp" "source/*.h" "include/*.h")
 add_library(${PROJECT_NAME} SHARED ${SRCS})
 target_compile_options(${PROJECT_NAME}
   PRIVATE
   ${DEFAULT_COMPILE_OPTIONS}
 )
-clang_format(${PROJECT_NAME})
+target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include")
+clang_format(${PROJECT_NAME} ${SRCS})
 clang_tidy(${PROJECT_NAME})
 
 # Build executable
