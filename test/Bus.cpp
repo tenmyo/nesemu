@@ -20,10 +20,10 @@ TEST(Bus16Test, ReadForNotRegisterd) {
   uint8_t buf[2 * 1024];
   uint_fast16_t addr = 0x100;
   gaddr = 0;
-  gop = BusAccessKind::None;
+  gop = BusAccessKind::kNone;
   bus.read(addr, 1, buf);
   EXPECT_EQ(gaddr, addr);
-  EXPECT_EQ(gop, BusAccessKind::Read);
+  EXPECT_EQ(gop, BusAccessKind::kRead);
 }
 TEST(Bus16Test, ReadForRegisterdOne) {
   Bus16 bus(errorCallback);
@@ -35,10 +35,10 @@ TEST(Bus16Test, ReadForRegisterdOne) {
   uint_fast16_t addr = 0x8000;
   uint_fast16_t bytes = 0x100;
   gaddr = 0;
-  gop = BusAccessKind::None;
+  gop = BusAccessKind::kNone;
   bus.read(addr, bytes, buf);
   EXPECT_EQ(gaddr, 0);
-  EXPECT_EQ(gop, BusAccessKind::None);
+  EXPECT_EQ(gop, BusAccessKind::kNone);
   EXPECT_EQ(std::memcmp(buf, p, bytes), 0);
   EXPECT_NE(std::memcmp(buf + bytes, p + bytes, 1), 0);
 }
@@ -60,10 +60,10 @@ TEST(Bus16Test, MapToMiddle) {
   uint_fast16_t addr = 256;
   uint_fast16_t bytes = 512;
   gaddr = 0;
-  gop = BusAccessKind::None;
+  gop = BusAccessKind::kNone;
   bus.read(addr, bytes, buf);
   EXPECT_EQ(gaddr, 0);
-  EXPECT_EQ(gop, BusAccessKind::None);
+  EXPECT_EQ(gop, BusAccessKind::kNone);
   EXPECT_EQ(std::memcmp(buf, p, bytes), 0);
   EXPECT_NE(std::memcmp(buf + bytes, p + bytes, 1), 0);
 }
@@ -77,10 +77,10 @@ TEST(Bus16Test, ReadOver) {
   uint_fast16_t addr = 0x100;
   uint_fast16_t bytes = 0x300;
   gaddr = 0;
-  gop = BusAccessKind::None;
+  gop = BusAccessKind::kNone;
   bus.read(addr, bytes, buf);
   EXPECT_NE(gaddr, 0);
-  EXPECT_EQ(gop, BusAccessKind::Read);
+  EXPECT_EQ(gop, BusAccessKind::kRead);
 }
 TEST(Bus16Test, ReadAcrossTwoMap) {
   Bus16 bus(errorCallback);
@@ -96,10 +96,10 @@ TEST(Bus16Test, ReadAcrossTwoMap) {
   uint_fast16_t addr = 0x200;
   uint_fast16_t bytes = 0x400;
   gaddr = 0;
-  gop = BusAccessKind::None;
+  gop = BusAccessKind::kNone;
   bus.read(addr, bytes, buf);
   EXPECT_EQ(gaddr, 0);
-  EXPECT_EQ(gop, BusAccessKind::None);
+  EXPECT_EQ(gop, BusAccessKind::kNone);
   EXPECT_EQ(std::memcmp(buf, p1, 0x200), 0);
   EXPECT_EQ(std::memcmp(buf + 0x200, p2, 0x200), 0);
   EXPECT_EQ(buf[0x200 + 0x200], 0);

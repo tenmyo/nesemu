@@ -33,17 +33,16 @@
 #include <system_error>
 
 namespace nes_emu {
-class Map {
-public:
+struct Map {
   Map(Device *owner, uint8_t *memory, uint_fast16_t address, size_t bytes)
-      : owner_(owner), memory_(memory), address_(address), bytes_(bytes) {}
-  Device *owner_;
-  uint8_t *memory_;
-  uint_fast16_t address_;
-  size_t bytes_;
+      : Owner(owner), Memory(memory), Address(address), Bytes(bytes) {}
+  Device *Owner;
+  uint8_t *Memory;
+  uint_fast16_t Address;
+  size_t Bytes;
 };
 
-enum class BusAccessKind { None, Read, Write };
+enum class BusAccessKind { kNone, kRead, kWrite };
 
 class Bus16 {
 public:
@@ -60,8 +59,8 @@ public:
 
   std::optional<std::errc> mapMemory(Device *dev, uint_fast16_t address,
                                      size_t bytes, void *mem) {
-    auto page_begin = address >> page_size_bits;
-    auto page_end = (address + bytes - 1) >> page_size_bits;
+    auto page_begin = address >> this->kPageSizeBits;
+    auto page_end = (address + bytes - 1) >> this->kPageSizeBits;
     auto mem_addr = static_cast<uint8_t *>(mem);
     // chack already exists
     // TODO(tenmyo): extract function
@@ -71,13 +70,13 @@ public:
       }
     }
     // map
-    auto offset = address - (page_begin << page_size_bits);
+    auto offset = address - (page_begin << this->kPageSizeBits);
     for (auto page = page_begin; page <= page_end; ++page) {
       this->map_table_[page] = std::make_unique<Map>(
-          dev, mem_addr, (page << page_size_bits) + offset,
-          std::min(bytes, this->page_size));
-      bytes -= this->page_size;
-      mem_addr += this->page_size;
+          dev, mem_addr, (page << this->kPageSizeBits) + offset,
+          std::min(bytes, this->kPageSize));
+      bytes -= this->kPageSize;
+      mem_addr += this->kPageSize;
       offset = 0;
     }
     return std::nullopt;
@@ -87,25 +86,25 @@ public:
     decltype(bytes) readed_bytes = 0;
     while (readed_bytes < bytes) {
       auto reading_address = address + readed_bytes;
-      auto page = reading_address >> this->page_size_bits;
+      auto page = reading_address >> this->kPageSizeBits;
       const auto &map = this->map_table_[page];
       if (map) {
-        auto offset = reading_address - map->address_;
-        auto reading_bytes = std::min(bytes - offset, map->bytes_);
-        if ((reading_address < map->address_) ||
-            (map->address_ + map->bytes_ < reading_address + reading_bytes)) {
+        auto offset = reading_address - map->Address;
+        auto reading_bytes = std::min(bytes - offset, map->Bytes);
+        if ((reading_address < map->Address) ||
+            (map->Address + map->Bytes < reading_address + reading_bytes)) {
           if (this->notify_error_ != nullptr) {
             this->notify_error_(address + reading_bytes - 1,
-                                BusAccessKind::Read);
+                                BusAccessKind::kRead);
           }
           return;
         }
-        memcpy(buffer + readed_bytes, this->map_table_[page]->memory_ + offset,
+        memcpy(buffer + readed_bytes, this->map_table_[page]->Memory + offset,
                reading_bytes);
         readed_bytes += reading_bytes;
       } else {
         if (this->notify_error_ != nullptr) {
-          this->notify_error_(address, BusAccessKind::Read);
+          this->notify_error_(address, BusAccessKind::kRead);
         }
         return;
       }
@@ -121,23 +120,23 @@ public:
   void write32(uint_fast16_t address, const uint32_t &value);
   void write64(uint_fast16_t address, const uint64_t &value);
   void dumpMap() const {
-    std::cout << "dump map(" << this->page_size << ")\n";
+    std::cout << "dump map(" << this->kPageSize << ")\n";
     std::cout << "--------\n";
     for (const auto &map : this->map_table_) {
       if (map) {
-        std::cout << std::hex << map->address_ << "\t" << std::hex
-                  << map->bytes_ << std::endl;
+        std::cout << std::hex << map->Address << "\t" << std::hex << map->Bytes
+                  << std::endl;
       }
     }
   }
 
 private:
-  static constexpr auto address_bits = 16;
-  static constexpr auto page_size_bits = 10;
-  static constexpr uint_fast16_t page_size = 1 << page_size_bits;
-  static constexpr std::uintptr_t page_mask = page_size - 1;
+  static constexpr auto kAddressBits = 16;
+  static constexpr auto kPageSizeBits = 10;
+  static constexpr uint_fast16_t kPageSize = 1 << kPageSizeBits;
+  static constexpr std::uintptr_t kPageMask = kPageSize - 1;
   ErrorCallback notify_error_;
-  std::unique_ptr<Map> map_table_[1ULL << (address_bits - page_size_bits)];
+  std::unique_ptr<Map> map_table_[1ULL << (kAddressBits - kPageSizeBits)];
 };
 
 } // namespace nes_emu
