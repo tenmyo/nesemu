@@ -30,18 +30,11 @@
 
 namespace nes_emu {
 class Device;
-struct Map {
-  Map(Device *owner, uint8_t *memory, uint_fast16_t address, size_t bytes)
-      : Owner(owner), Memory(memory), Address(address), Bytes(bytes) {}
-  Device *Owner;
-  uint8_t *Memory;
-  uint_fast16_t Address;
-  size_t Bytes;
-};
 
 enum class BusAccessKind { kNone, kRead, kWrite };
 
 template <size_t address_bits> class Bus {
+
 public:
   using AddressType = uint_fast16_t;
   using ErrorCallback = void (*)(AddressType addr, BusAccessKind op);
@@ -70,6 +63,15 @@ public:
   void dumpMap() const;
 
 private:
+  struct Map {
+    explicit Map(Device *owner, uint8_t *memory, AddressType address,
+                 size_t bytes)
+        : Owner(owner), Memory(memory), Address(address), Bytes(bytes) {}
+    Device *Owner;
+    uint8_t *Memory;
+    AddressType Address;
+    size_t Bytes;
+  };
   static constexpr auto kAddressBits = address_bits;
   static constexpr auto kPageSizeBits = 10;
   static constexpr AddressType kPageSize = 1 << kPageSizeBits;
