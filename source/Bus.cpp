@@ -29,7 +29,7 @@
 
 namespace nes_emu {
 
-std::optional<std::errc> Bus16::mapMemory(Device *dev, uint_fast16_t address,
+std::optional<std::errc> Bus16::mapMemory(Device *dev, AddressType address,
                                           size_t bytes, void *mem) {
   auto page_begin = address >> this->kPageSizeBits;
   auto page_end = (address + bytes - 1) >> this->kPageSizeBits;
@@ -53,7 +53,7 @@ std::optional<std::errc> Bus16::mapMemory(Device *dev, uint_fast16_t address,
   return std::nullopt;
 }
 
-void Bus16::read(uint_fast16_t address, size_t bytes, uint8_t *buffer) {
+void Bus16::read(AddressType address, size_t bytes, uint8_t *buffer) {
   decltype(bytes) readed_bytes = 0;
   while (readed_bytes < bytes) {
     auto reading_address = address + readed_bytes;
