@@ -57,8 +57,9 @@ std::optional<std::errc> Bus<address_bits>::mapMemory(Device *dev,
 
 template <size_t address_bits>
 void Bus<address_bits>::read(AddressType address, size_t bytes,
-                             uint8_t *buffer) {
+                             void *buffer) const {
   decltype(bytes) readed_bytes = 0;
+  auto p = static_cast<uint8_t *>(buffer);
   while (readed_bytes < bytes) {
     auto reading_address = address + readed_bytes;
     auto page = reading_address >> this->kPageSizeBits;
@@ -74,7 +75,7 @@ void Bus<address_bits>::read(AddressType address, size_t bytes,
         }
         return;
       }
-      memcpy(buffer + readed_bytes, this->map_table_[page]->Memory + offset,
+      memcpy(p + readed_bytes, this->map_table_[page]->Memory + offset,
              reading_bytes);
       readed_bytes += reading_bytes;
     } else {

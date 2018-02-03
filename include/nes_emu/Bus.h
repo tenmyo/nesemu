@@ -50,7 +50,7 @@ public:
 
   std::optional<std::errc> mapMemory(Device *dev, AddressType address,
                                      size_t bytes, void *mem);
-  void read(AddressType address, size_t bytes, uint8_t *buffer);
+  void read(AddressType address, size_t bytes, void *buffer) const;
   uint8_t read8(AddressType address);
   uint16_t read16(AddressType address);
   uint32_t read32(AddressType address);
@@ -64,9 +64,9 @@ public:
 
 private:
   struct Map {
-    explicit Map(Device *owner, uint8_t *memory, AddressType address,
-                 size_t bytes)
-        : Owner(owner), Memory(memory), Address(address), Bytes(bytes) {}
+    explicit Map(Device *owner, void *memory, AddressType address, size_t bytes)
+        : Owner(owner), Memory(static_cast<uint8_t *>(memory)),
+          Address(address), Bytes(bytes) {}
     Device *Owner;
     uint8_t *Memory;
     AddressType Address;
