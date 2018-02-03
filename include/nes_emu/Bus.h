@@ -23,14 +23,11 @@
 // External headers
 
 // System headers
-#include <algorithm>
-#include <cstddef>
-#include <cstdint>
-#include <cstring>
-#include <iostream>
-#include <memory>
-#include <optional>
-#include <system_error>
+#include <cstddef>      // size_t
+#include <cstdint>      // uint_fast16_t
+#include <memory>       // unique_ptr
+#include <optional>     // optional
+#include <system_error> // errc
 
 namespace nes_emu {
 struct Map {
@@ -58,58 +55,8 @@ public:
   Bus16 &operator=(Bus16 &&) noexcept = default;
 
   std::optional<std::errc> mapMemory(Device *dev, uint_fast16_t address,
-                                     size_t bytes, void *mem) {
-    auto page_begin = address >> this->kPageSizeBits;
-    auto page_end = (address + bytes - 1) >> this->kPageSizeBits;
-    auto mem_addr = static_cast<uint8_t *>(mem);
-    // chack already exists
-    // TODO(tenmyo): extract function
-    for (auto page = page_begin; page <= page_end; ++page) {
-      if (this->map_table_[page]) {
-        return std::errc::file_exists;
-      }
-    }
-    // map
-    auto offset = address - (page_begin << this->kPageSizeBits);
-    for (auto page = page_begin; page <= page_end; ++page) {
-      this->map_table_[page] = std::make_unique<Map>(
-          dev, mem_addr, (page << this->kPageSizeBits) + offset,
-          std::min(bytes, this->kPageSize));
-      bytes -= this->kPageSize;
-      mem_addr += this->kPageSize;
-      offset = 0;
-    }
-    return std::nullopt;
-  }
-
-  void read(uint_fast16_t address, uint_fast16_t bytes, uint8_t *buffer) {
-    decltype(bytes) readed_bytes = 0;
-    while (readed_bytes < bytes) {
-      auto reading_address = address + readed_bytes;
-      auto page = reading_address >> this->kPageSizeBits;
-      const auto &map = this->map_table_[page];
-      if (map) {
-        auto offset = reading_address - map->Address;
-        auto reading_bytes = std::min(bytes - offset, map->Bytes);
-        if ((reading_address < map->Address) ||
-            (map->Address + map->Bytes < reading_address + reading_bytes)) {
-          if (this->notify_error_ != nullptr) {
-            this->notify_error_(address + reading_bytes - 1,
-                                BusAccessKind::kRead);
-          }
-          return;
-        }
-        memcpy(buffer + readed_bytes, this->map_table_[page]->Memory + offset,
-               reading_bytes);
-        readed_bytes += reading_bytes;
-      } else {
-        if (this->notify_error_ != nullptr) {
-          this->notify_error_(address, BusAccessKind::kRead);
-        }
-        return;
-      }
-    }
-  }
+                                     size_t bytes, void *mem);
+  void read(uint_fast16_t address, uint_fast16_t bytes, uint8_t *buffer);
   uint8_t read8(uint_fast16_t address);
   uint16_t read16(uint_fast16_t address);
   uint32_t read32(uint_fast16_t address);
@@ -119,16 +66,7 @@ public:
   void write16(uint_fast16_t address, const uint16_t &value);
   void write32(uint_fast16_t address, const uint32_t &value);
   void write64(uint_fast16_t address, const uint64_t &value);
-  void dumpMap() const {
-    std::cout << "dump map(" << this->kPageSize << ")\n";
-    std::cout << "--------\n";
-    for (const auto &map : this->map_table_) {
-      if (map) {
-        std::cout << std::hex << map->Address << "\t" << std::hex << map->Bytes
-                  << std::endl;
-      }
-    }
-  }
+  void dumpMap() const;
 
 private:
   static constexpr auto kAddressBits = 16;

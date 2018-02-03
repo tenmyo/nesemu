@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 #include <array>
+#include <cstring>
 
 using namespace nes_emu;
 namespace {
