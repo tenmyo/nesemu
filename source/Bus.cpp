@@ -29,8 +29,10 @@
 
 namespace nes_emu {
 
-std::optional<std::errc> Bus16::mapMemory(Device *dev, AddressType address,
-                                          size_t bytes, void *mem) {
+template <size_t address_bits>
+std::optional<std::errc> Bus<address_bits>::mapMemory(Device *dev,
+                                                      AddressType address,
+                                                      size_t bytes, void *mem) {
   auto page_begin = address >> this->kPageSizeBits;
   auto page_end = (address + bytes - 1) >> this->kPageSizeBits;
   auto mem_addr = static_cast<uint8_t *>(mem);
@@ -53,7 +55,9 @@ std::optional<std::errc> Bus16::mapMemory(Device *dev, AddressType address,
   return std::nullopt;
 }
 
-void Bus16::read(AddressType address, size_t bytes, uint8_t *buffer) {
+template <size_t address_bits>
+void Bus<address_bits>::read(AddressType address, size_t bytes,
+                             uint8_t *buffer) {
   decltype(bytes) readed_bytes = 0;
   while (readed_bytes < bytes) {
     auto reading_address = address + readed_bytes;
@@ -82,7 +86,7 @@ void Bus16::read(AddressType address, size_t bytes, uint8_t *buffer) {
   }
 }
 
-void Bus16::dumpMap() const {
+template <size_t address_bits> void Bus<address_bits>::dumpMap() const {
   std::cout << "dump map(" << this->kPageSize << ")\n";
   std::cout << "--------\n";
   for (const auto &map : this->map_table_) {
@@ -92,5 +96,7 @@ void Bus16::dumpMap() const {
     }
   }
 }
+
+template class Bus<16>;
 
 } // namespace nes_emu

@@ -18,7 +18,6 @@
 //= Dependencies
 //==============================================================================
 // Local/Private Headers
-#include "nes_emu/Device.h"
 
 // External headers
 
@@ -30,6 +29,7 @@
 #include <system_error> // errc
 
 namespace nes_emu {
+class Device;
 struct Map {
   Map(Device *owner, uint8_t *memory, uint_fast16_t address, size_t bytes)
       : Owner(owner), Memory(memory), Address(address), Bytes(bytes) {}
@@ -41,19 +41,19 @@ struct Map {
 
 enum class BusAccessKind { kNone, kRead, kWrite };
 
-class Bus16 {
+template <size_t address_bits> class Bus {
 public:
   using AddressType = uint_fast16_t;
   using ErrorCallback = void (*)(AddressType addr, BusAccessKind op);
-  explicit Bus16(ErrorCallback cb) noexcept
+  explicit Bus(ErrorCallback cb) noexcept
       : notify_error_(cb), map_table_{nullptr} {}
-  ~Bus16() noexcept = default;
+  ~Bus() noexcept = default;
   // disallow copy
-  Bus16(const Bus16 &) = delete;
-  Bus16 &operator=(const Bus16 &) = delete;
+  Bus(const Bus &) = delete;
+  Bus &operator=(const Bus &) = delete;
   // allow move
-  Bus16(Bus16 &&) noexcept = default;
-  Bus16 &operator=(Bus16 &&) noexcept = default;
+  Bus(Bus &&) noexcept = default;
+  Bus &operator=(Bus &&) noexcept = default;
 
   std::optional<std::errc> mapMemory(Device *dev, AddressType address,
                                      size_t bytes, void *mem);
@@ -70,13 +70,15 @@ public:
   void dumpMap() const;
 
 private:
-  static constexpr auto kAddressBits = 16;
+  static constexpr auto kAddressBits = address_bits;
   static constexpr auto kPageSizeBits = 10;
   static constexpr AddressType kPageSize = 1 << kPageSizeBits;
   static constexpr std::uintptr_t kPageMask = kPageSize - 1;
   ErrorCallback notify_error_;
   std::unique_ptr<Map> map_table_[1ULL << (kAddressBits - kPageSizeBits)];
 };
+
+using Bus16 = Bus<16>;
 
 } // namespace nes_emu
 

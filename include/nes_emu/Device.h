@@ -18,6 +18,7 @@
 //= Dependencies
 //==============================================================================
 // Local/Private Headers
+#include "nes_emu/Bus.h"
 
 // External headers
 
@@ -27,7 +28,6 @@
 #include <system_error>
 
 namespace nes_emu {
-class Bus16;
 class Device {
 public:
   Device() = default;
