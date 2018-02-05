@@ -29,6 +29,8 @@
 
 namespace nes_emu {
 
+template <size_t address_bits> Bus<address_bits>::~Bus() noexcept = default;
+
 template <size_t address_bits>
 std::optional<std::errc> Bus<address_bits>::mapMemory(Device *dev,
                                                       AddressType address,

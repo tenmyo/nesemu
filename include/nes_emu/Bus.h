@@ -40,7 +40,7 @@ public:
   using ErrorCallback = void (*)(AddressType addr, BusAccessKind op);
   explicit Bus(ErrorCallback cb) noexcept
       : notify_error_(cb), map_table_{nullptr} {}
-  ~Bus() noexcept = default;
+  ~Bus() noexcept;
   // disallow copy
   Bus(const Bus &) = delete;
   Bus &operator=(const Bus &) = delete;
@@ -81,6 +81,7 @@ private:
 };
 
 using Bus16 = Bus<16>;
+extern template class Bus<16>;
 
 } // namespace nes_emu
 
