@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 #include <array>
+#include <cstring>
 
 using namespace nes_emu;
 namespace {
@@ -58,7 +59,7 @@ TEST(Bus16Test, MapToMiddle) {
   EXPECT_FALSE(sram.map(&bus, 256));
   uint8_t buf[1 * 1024] = {0};
   uint_fast16_t addr = 256;
-  uint_fast16_t bytes = 512;
+  uint_fast16_t bytes = 511;
   gaddr = 0;
   gop = BusAccessKind::kNone;
   bus.read(addr, bytes, buf);
