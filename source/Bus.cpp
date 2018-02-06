@@ -72,8 +72,7 @@ void Bus<address_bits>::read(AddressType address, size_t bytes,
       if ((reading_address < map->Address) ||
           (map->Address + map->Bytes < reading_address + reading_bytes)) {
         if (this->notify_error_ != nullptr) {
-          this->notify_error_(address + reading_bytes - 1,
-                              BusAccessKind::kRead);
+          this->notify_error_(map->Address + offset, BusAccessKind::kRead);
         }
         return;
       }
@@ -103,8 +102,7 @@ void Bus<address_bits>::write(const void *buffer, size_t bytes,
       if ((writing_address < map->Address) ||
           (map->Address + map->Bytes < writing_address + writing_bytes)) {
         if (this->notify_error_ != nullptr) {
-          this->notify_error_(destination + writing_bytes - 1,
-                              BusAccessKind::kWrite);
+          this->notify_error_(map->Address + offset, BusAccessKind::kWrite);
         }
         return;
       }
