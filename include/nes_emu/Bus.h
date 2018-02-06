@@ -22,6 +22,7 @@
 // External headers
 
 // System headers
+#include <array>        // array
 #include <cstddef>      // size_t
 #include <cstdint>      // uint_fast16_t
 #include <memory>       // unique_ptr
@@ -38,8 +39,7 @@ template <size_t address_bits> class Bus {
 public:
   using AddressType = uint_fast16_t;
   using ErrorCallback = void (*)(AddressType addr, BusAccessKind op);
-  explicit Bus(ErrorCallback cb) noexcept
-      : notify_error_(cb), map_table_{nullptr} {}
+  explicit Bus(ErrorCallback cb) noexcept : notify_error_(cb) {}
   ~Bus() noexcept;
   // disallow copy
   Bus(const Bus &) = delete;
@@ -74,10 +74,11 @@ private:
   };
   static constexpr auto kAddressBits = address_bits;
   static constexpr auto kPageSizeBits = 10;
+  static constexpr auto kPageNum = 1ULL << (kAddressBits - kPageSizeBits);
   static constexpr AddressType kPageSize = 1 << kPageSizeBits;
   static constexpr std::uintptr_t kPageMask = kPageSize - 1;
   ErrorCallback notify_error_;
-  std::unique_ptr<Map> map_table_[1ULL << (kAddressBits - kPageSizeBits)];
+  std::array<std::unique_ptr<Map>, kPageNum> map_table_;
 };
 
 using Bus16 = Bus<16>;
