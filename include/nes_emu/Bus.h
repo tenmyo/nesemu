@@ -51,10 +51,10 @@ public:
   std::optional<std::errc> mapMemory(Device *dev, AddressType address,
                                      size_t bytes, void *mem);
   void read(AddressType address, size_t bytes, void *buffer) const;
-  uint8_t read8(AddressType address);
-  uint16_t read16(AddressType address);
-  uint32_t read32(AddressType address);
-  uint64_t read64(AddressType address);
+  uint8_t read8(AddressType address) const;
+  uint16_t read16(AddressType address) const;
+  uint32_t read32(AddressType address) const;
+  uint64_t read64(AddressType address) const;
   void write(const void *buffer, size_t bytes, AddressType destination);
   void write8(AddressType address, const uint8_t &value);
   void write16(AddressType address, const uint16_t &value);
