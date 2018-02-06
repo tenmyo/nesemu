@@ -68,7 +68,7 @@ void Bus<address_bits>::read(AddressType address, size_t bytes,
     const auto &map = this->map_table_[page];
     if (map) {
       auto offset = reading_address - map->Address;
-      auto reading_bytes = std::min(bytes - offset, map->Bytes);
+      auto reading_bytes = std::min(bytes - readed_bytes - offset, map->Bytes);
       if ((reading_address < map->Address) ||
           (map->Address + map->Bytes < reading_address + reading_bytes)) {
         if (this->notify_error_ != nullptr) {
@@ -77,12 +77,42 @@ void Bus<address_bits>::read(AddressType address, size_t bytes,
         }
         return;
       }
-      memcpy(p + readed_bytes, this->map_table_[page]->Memory + offset,
-             reading_bytes);
+      std::memcpy(p + readed_bytes, map->Memory + offset, reading_bytes);
       readed_bytes += reading_bytes;
     } else {
       if (this->notify_error_ != nullptr) {
         this->notify_error_(address, BusAccessKind::kRead);
+      }
+      return;
+    }
+  }
+}
+
+template <size_t address_bits>
+void Bus<address_bits>::write(const void *buffer, size_t bytes,
+                              AddressType destination) {
+  decltype(bytes) written_bytes = 0;
+  auto p = static_cast<const uint8_t *>(buffer);
+  while (written_bytes < bytes) {
+    auto writing_address = destination + written_bytes;
+    auto page = writing_address >> this->kPageSizeBits;
+    auto &map = this->map_table_[page];
+    if (map) {
+      auto offset = writing_address - map->Address;
+      auto writing_bytes = std::min(bytes - written_bytes - offset, map->Bytes);
+      if ((writing_address < map->Address) ||
+          (map->Address + map->Bytes < writing_address + writing_bytes)) {
+        if (this->notify_error_ != nullptr) {
+          this->notify_error_(destination + writing_bytes - 1,
+                              BusAccessKind::kWrite);
+        }
+        return;
+      }
+      std::memcpy(map->Memory + offset, p + written_bytes, writing_bytes);
+      written_bytes += writing_bytes;
+    } else {
+      if (this->notify_error_ != nullptr) {
+        this->notify_error_(destination, BusAccessKind::kWrite);
       }
       return;
     }
