@@ -25,9 +25,11 @@
 #include <array>        // array
 #include <cstddef>      // size_t
 #include <cstdint>      // uint_fast16_t
+#include <functional>   // function
 #include <memory>       // unique_ptr
 #include <optional>     // optional
 #include <system_error> // errc
+#include <utility>      // move
 
 namespace nes_emu {
 class Device;
@@ -38,8 +40,8 @@ template <size_t address_bits> class Bus {
 
 public:
   using AddressType = uint_fast16_t;
-  using ErrorCallback = void (*)(AddressType addr, BusAccessKind op);
-  explicit Bus(ErrorCallback cb) noexcept : notify_error_(cb) {}
+  explicit Bus(std::function<void(AddressType, BusAccessKind)> cb) noexcept
+      : notify_error_(std::move(std::move(cb))) {}
   ~Bus() noexcept;
   // disallow copy
   Bus(const Bus &) = delete;
@@ -102,7 +104,7 @@ private:
   static constexpr auto kPageNum = 1ULL << (kAddressBits - kPageSizeBits);
   static constexpr AddressType kPageSize = 1 << kPageSizeBits;
   static constexpr std::uintptr_t kPageMask = kPageSize - 1;
-  ErrorCallback notify_error_;
+  std::function<void(AddressType, BusAccessKind)> notify_error_;
   std::array<std::unique_ptr<Map>, kPageNum> map_table_;
 };
 
