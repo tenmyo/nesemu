@@ -59,7 +59,7 @@ std::optional<std::errc> Bus<address_bits>::mapMemory(Device *dev,
 
 template <size_t address_bits>
 void Bus<address_bits>::read(AddressType address, size_t bytes,
-                             void *buffer) const {
+                             void *buffer) const noexcept {
   decltype(bytes) readed_bytes = 0;
   auto p = static_cast<uint8_t *>(buffer);
   while (readed_bytes < bytes) {
@@ -90,7 +90,7 @@ void Bus<address_bits>::read(AddressType address, size_t bytes,
 
 template <size_t address_bits>
 void Bus<address_bits>::write(const void *buffer, size_t bytes,
-                              AddressType destination) {
+                              AddressType destination) noexcept {
   decltype(bytes) written_bytes = 0;
   auto p = static_cast<const uint8_t *>(buffer);
   while (written_bytes < bytes) {
@@ -119,7 +119,8 @@ void Bus<address_bits>::write(const void *buffer, size_t bytes,
   }
 }
 
-template <size_t address_bits> void Bus<address_bits>::dumpMap() const {
+template <size_t address_bits>
+void Bus<address_bits>::dumpMap() const noexcept {
   std::cout << "dump map(" << this->kPageSize << ")\n";
   std::cout << "--------\n";
   for (const auto &map : this->map_table_) {

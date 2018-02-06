@@ -251,3 +251,92 @@ TEST(Bus16Test, WriteReadAcrossTwoMap) {
   EXPECT_EQ(std::memcmp(buf, buf2, bytes), 0);
   EXPECT_EQ(buf2[bytes], 0x12);
 }
+
+TEST(Bus16Test, WriteRead8) {
+  // Setup
+  Bus16 bus(errorCallback);
+  Sram<0x100> sram;
+  auto p = sram.data();
+  memset(p, 0xce, sram.size());
+  ASSERT_FALSE(sram.map(&bus, 0x8000));
+  uint_fast16_t addr = 0x8000;
+  gaddr = 0;
+  gop = BusAccessKind::kNone;
+  // Do
+  bus.write8(addr, 0x01);
+  // Verify: no error
+  EXPECT_EQ(gaddr, 0);
+  EXPECT_EQ(gop, BusAccessKind::kNone);
+  // Do
+  auto ret = bus.read8(addr);
+  // Verify: no error
+  EXPECT_EQ(gaddr, 0);
+  EXPECT_EQ(gop, BusAccessKind::kNone);
+  EXPECT_EQ(ret, 0x01);
+}
+TEST(Bus16Test, WriteRead16) {
+  // Setup
+  Bus16 bus(errorCallback);
+  Sram<0x100> sram;
+  auto p = sram.data();
+  memset(p, 0xce, sram.size());
+  ASSERT_FALSE(sram.map(&bus, 0x8000));
+  uint_fast16_t addr = 0x8000;
+  gaddr = 0;
+  gop = BusAccessKind::kNone;
+  // Do
+  bus.write16(addr, 0x0123);
+  // Verify: no error
+  EXPECT_EQ(gaddr, 0);
+  EXPECT_EQ(gop, BusAccessKind::kNone);
+  // Do
+  auto ret = bus.read16(addr);
+  // Verify: no error
+  EXPECT_EQ(gaddr, 0);
+  EXPECT_EQ(gop, BusAccessKind::kNone);
+  EXPECT_EQ(ret, 0x0123);
+}
+TEST(Bus16Test, WriteRead32) {
+  // Setup
+  Bus16 bus(errorCallback);
+  Sram<0x100> sram;
+  auto p = sram.data();
+  memset(p, 0xce, sram.size());
+  ASSERT_FALSE(sram.map(&bus, 0x8000));
+  uint_fast16_t addr = 0x8000;
+  gaddr = 0;
+  gop = BusAccessKind::kNone;
+  // Do
+  bus.write32(addr, 0x01234567);
+  // Verify: no error
+  EXPECT_EQ(gaddr, 0);
+  EXPECT_EQ(gop, BusAccessKind::kNone);
+  // Do
+  auto ret = bus.read32(addr);
+  // Verify: no error
+  EXPECT_EQ(gaddr, 0);
+  EXPECT_EQ(gop, BusAccessKind::kNone);
+  EXPECT_EQ(ret, 0x01234567);
+}
+TEST(Bus16Test, WriteRead64) {
+  // Setup
+  Bus16 bus(errorCallback);
+  Sram<0x100> sram;
+  auto p = sram.data();
+  memset(p, 0xce, sram.size());
+  ASSERT_FALSE(sram.map(&bus, 0x8000));
+  uint_fast16_t addr = 0x8000;
+  gaddr = 0;
+  gop = BusAccessKind::kNone;
+  // Do
+  bus.write64(addr, 0x0123456789abcdef);
+  // Verify: no error
+  EXPECT_EQ(gaddr, 0);
+  EXPECT_EQ(gop, BusAccessKind::kNone);
+  // Do
+  auto ret = bus.read64(addr);
+  // Verify: no error
+  EXPECT_EQ(gaddr, 0);
+  EXPECT_EQ(gop, BusAccessKind::kNone);
+  EXPECT_EQ(ret, 0x0123456789abcdef);
+}
