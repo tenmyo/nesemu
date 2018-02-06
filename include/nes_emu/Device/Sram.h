@@ -29,14 +29,15 @@
 namespace nes_emu {
 template <size_t N> class Sram : public MemoryMappedDevice {
 public:
-  std::optional<std::errc> map(Bus16 *bus, uint_fast16_t address) override {
+  std::optional<std::errc> map(Bus16 *bus,
+                               Bus16::AddressType address) override {
     return bus->mapMemory(this, address, N, this->mem_.data());
   }
   constexpr uint8_t *data() noexcept { return this->mem_.data(); }
   constexpr size_t size() const noexcept { return N; }
 
 private:
-  std::array<uint8_t, N> mem_{};
+  std::array<uint8_t, N> mem_;
 };
 } // namespace nes_emu
 

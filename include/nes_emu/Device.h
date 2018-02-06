@@ -38,7 +38,8 @@ public:
   // allow move
   Device(Device &&) noexcept = default;
   Device &operator=(Device &&) noexcept = default;
-  virtual std::optional<std::errc> map(Bus16 *bus, uint_fast16_t address) = 0;
+  virtual std::optional<std::errc> map(Bus16 *bus,
+                                       Bus16::AddressType address) = 0;
 };
 } // namespace nes_emu
 
