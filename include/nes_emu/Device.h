@@ -32,12 +32,11 @@ class Device {
 public:
   Device() = default;
   virtual ~Device() noexcept = default;
-  // disallow copy
+  // disallow copy & move
   Device(const Device &) = delete;
   Device &operator=(const Device &) = delete;
-  // allow move
-  Device(Device &&) noexcept = default;
-  Device &operator=(Device &&) noexcept = default;
+  Device(Device &&) noexcept = delete;
+  Device &operator=(Device &&) noexcept = delete;
   virtual std::optional<std::errc> map(Bus16 *bus,
                                        Bus16::AddressType address) = 0;
 };
