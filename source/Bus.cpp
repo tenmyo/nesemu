@@ -47,7 +47,7 @@ std::optional<std::errc> Bus<address_bits>::mapMemory(Device *dev,
   // map
   auto offset = address - (page_begin << this->kPageSizeBits);
   for (auto page = page_begin; page <= page_end; ++page) {
-    this->map_table_[page] = std::make_unique<Map>(
+    this->map_table_[page] = std::make_unique<MemoryMap>(
         dev, mem_addr, (page << this->kPageSizeBits) + offset,
         std::min(bytes, this->kPageSize));
     bytes -= this->kPageSize;

@@ -90,8 +90,9 @@ public:
   void dumpMap() const noexcept;
 
 private:
-  struct Map {
-    explicit Map(Device *owner, void *memory, AddressType address, size_t bytes)
+  struct MemoryMap {
+    explicit MemoryMap(Device *owner, void *memory, AddressType address,
+                       size_t bytes)
         : Owner(owner), Memory(static_cast<uint8_t *>(memory)),
           Address(address), Bytes(bytes) {}
     Device *Owner;
@@ -105,7 +106,7 @@ private:
   static constexpr AddressType kPageSize = 1 << kPageSizeBits;
   static constexpr std::uintptr_t kPageMask = kPageSize - 1;
   std::function<void(AddressType, BusAccessKind)> notify_error_;
-  std::array<std::unique_ptr<Map>, kPageNum> map_table_;
+  std::array<std::unique_ptr<MemoryMap>, kPageNum> map_table_;
 };
 
 using Bus16 = Bus<16>;
