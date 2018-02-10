@@ -23,15 +23,16 @@
 // External headers
 
 // System headers
-#include <cstdint>
-#include <optional>
-#include <system_error>
+#include <optional>     // optional
+#include <system_error> // errc
 
 namespace nes_emu {
 class Device {
+protected: // Can only create subclasses.
+  Device();
+
 public:
-  Device() = default;
-  virtual ~Device() noexcept = default;
+  virtual ~Device() noexcept;
   // disallow copy & move
   Device(const Device &) = delete;
   Device &operator=(const Device &) = delete;

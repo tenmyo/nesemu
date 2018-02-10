@@ -26,10 +26,10 @@
 namespace nes_emu {
 class MemoryMappedDevice : public Device {
 protected: // Can only create subclasses.
-  MemoryMappedDevice() = default;
+  MemoryMappedDevice();
 
 public:
-  ~MemoryMappedDevice() noexcept override = default;
+  ~MemoryMappedDevice() noexcept override;
   // disallow copy & move
   MemoryMappedDevice(const MemoryMappedDevice &) = delete;
   MemoryMappedDevice &operator=(const MemoryMappedDevice &) = delete;
